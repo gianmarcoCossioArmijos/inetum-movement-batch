@@ -1,8 +1,11 @@
-package com.inetum.movement_batch;
+package com.inetum.movement_batch.entity;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class MovementCsv {
 
     private Double operationAmount;

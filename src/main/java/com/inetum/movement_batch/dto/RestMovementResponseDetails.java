@@ -1,6 +1,11 @@
 package com.inetum.movement_batch.dto;
 
-@Data
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RestMovementResponseDetails {
 
     private Integer movementId;
