@@ -15,28 +15,16 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
-import javax.sql.DataSource;
 
 @Configuration
 public class BatchConfig {
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Bean
-    public PlatformTransactionManager transactionManager(@Qualifier("dataSource") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
 
     @Bean
     public FlatFileItemReader<MovementCsv> reader(){
@@ -50,7 +38,7 @@ public class BatchConfig {
                         "operationCurrency",
                         "origin",
                         "channel",
-                        "creditLineId")
+                        "creditCardNumber")
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<MovementCsv>() {{
                     setTargetType(MovementCsv.class);}})
                 .build();
@@ -82,7 +70,9 @@ public class BatchConfig {
                                 "exchangeCurrency",
                                 "origin",
                                 "channel",
-                                "creditLineId"});}});
+                                "creditLineId",
+                                "responseCode",
+                                "responseStatus"});}});
             }});
         return writer;
     }
@@ -91,7 +81,7 @@ public class BatchConfig {
     public Step step(PlatformTransactionManager transactionManager,
                      JobRepository jobRepository, MovementProcessor process) {
         return new StepBuilder("read-csv", jobRepository)
-                .<MovementCsv, RestMovementResponse>chunk(1, transactionManager)
+                .<MovementCsv, RestMovementResponse>chunk(20, transactionManager)
                 .reader(reader())
                 .processor(process)
                 .writer(writer())

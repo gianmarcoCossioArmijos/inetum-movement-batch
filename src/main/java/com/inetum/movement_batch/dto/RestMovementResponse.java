@@ -23,4 +23,6 @@ public class RestMovementResponse {
     private String origin;
     private String channel;
     private Integer creditLineId;
+    private String  responseCode;
+    private String responseStatus;
 }

@@ -9,5 +9,4 @@ public class MovementBatchApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MovementBatchApplication.class, args);
 	}
-
 }
