@@ -42,9 +42,12 @@ public class MovementProcessor implements ItemProcessor<MovementCsv, RestMovemen
         cardNumberRequest.put("creditLineCurrency", movement.getOperationCurrency());
         CreditCard creditCardResult = apiService.restClientValidateCreditCard(cardNumberRequest);
 
-        // setting credit line id to process
-        int creditLineId = Integer.parseInt(creditCardResult.getCreditCardIdCode());
-        System.out.println(String.format("CREDIT LINE ID GETTED: %s", creditCardResult));
+        // validating error and setting credit line id to process
+        int creditLineId = 0;
+        if (!creditCardResult.getCreditCardIdCode().contains("{ERROR}")) {
+            creditLineId = Integer.parseInt(creditCardResult.getCreditCardIdCode());
+            System.out.println(String.format("CREDIT LINE ID GETTED: %s", creditCardResult.getCreditCardIdCode()));
+        }
 
         // seting up request object for rest client
         Map<String, Object> request = new HashMap<>();
@@ -56,14 +59,19 @@ public class MovementProcessor implements ItemProcessor<MovementCsv, RestMovemen
         request.put("channel", movement.getChannel());
         request.put("creditLineId", creditLineId);
 
-        // post request for creating movements extracted from csv
-        ProcessedMovement result = apiService.restClientPostMovment(request);
+        // validating error and post request for creating movements extracted from csv
+        ProcessedMovement result = new ProcessedMovement();
+        result.setResponseMessage(creditCardResult.getCreditCardIdCode().toString());
+        if (!creditCardResult.getCreditCardIdCode().contains("{ERROR}")) {
+            result = apiService.restClientPostMovment(request);
+        }
 
         // validating and parsing data to object for writing new csv
         RestMovementResponse response = validator.reponseMapping(result, movement);
 
         // printing process end and returning formated resposne object
         System.out.println(String.format("REST CLIENT RESPONSE: %s", response));
+        System.out.println("/------------------------- PROCESS ENDED ---------------------------/");
         return response;
     }
 }

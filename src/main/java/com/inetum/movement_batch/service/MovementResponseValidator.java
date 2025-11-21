@@ -13,7 +13,7 @@ public class MovementResponseValidator {
     public RestMovementResponse reponseMapping(ProcessedMovement result, MovementCsv movement) {
 
         RestMovementResponse response = new RestMovementResponse();
-        if (result.getResponseMessage().contains("succesfuly registered")) {
+        if (!result.getResponseMessage().contains("{ERROR}")) {
             response.setResponseCreditAmount(result.getResponseCreditAmount());
             response.setResponseCurrentAmount(result.getResponseCurrentAmount());
             response.setResponseMessage(result.getResponseMessage());
@@ -40,8 +40,7 @@ public class MovementResponseValidator {
             response.setChannel(movement.getChannel());
             response.setResponseCode("00");
             response.setResponseStatus("NOT PROCESSED");
-            response.setResponseMessage(
-                    String.format("Operatio failed: ---> ", movement.toString()));
+            response.setResponseMessage("Operation failed to process: ---> " + result.getResponseMessage().toString());
         }
         return response;
     }
